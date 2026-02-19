@@ -20,7 +20,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "check": "prettier --check . && eslint .",
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

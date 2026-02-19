@@ -36,17 +36,20 @@ app.set("view engine", "ejs");
 app.use(require("body-parser").urlencoded({ extended: true }));
 
 // secret word handling
-// let secretWord = "syzygy";
 app.get("/secretWord", (req, res) => {
   if (!req.session.secretWord) {
     req.session.secretWord = "syzygy";
   } 
   res.render("secretWord", { secretWord: req.session.secretWord });
 });
+
 app.post("/secretWord", (req, res) => {
-  secretWord = req.body.secretWord;
-  req.session.secretWord = req.bodysecretWord;
-  res.redirect("/secretWord");
+  req.session.secretWord = req.body.secretWord;
+  
+  req.session.save((err) => {
+    if (err) return next(err);
+    res.redirect("/secretWord");
+  });
 });
 
 app.use((req, res) => {
