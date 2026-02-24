@@ -9,19 +9,18 @@
       rel="stylesheet"
       integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
       crossorigin="anonymous"
-    />  
+    />
     <title>Jobs List</title>
   </head>
   <body>
     <%- include("partials/head.ejs") %>
     <%- include("partials/header.ejs") %>
-      <p>The secret word is: <%= secretWord %></p>
-      <p>Would you like to change it?</p>
-      <form method="POST">
-        <label name="secretWord"></label>
-        <input name="secretWord" /><br />
-        <button>Submit</button>
-      </form>
+    <% if (user) { %>
+      <a href="/secretWord">Click this link to view/change the Secret Word</a>
+    <% } else { %>
+      <a href="/sessions/logon">Click this link to logon</a>
+      <a href="/sessions/register">Click this link to register</a>
+    <% } %>
     <%- include("partials/footer.ejs") %>
   </body>
 </html>
