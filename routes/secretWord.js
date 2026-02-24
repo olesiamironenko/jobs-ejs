@@ -9,14 +9,21 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  if (!req.body.secretWord.toUpperCase().startsWith()[0] == "P") {
+  const word = (req.body.secretWord || "").toUpperCase();
+
+  if (!word) {
+    req.flash("error", "Secret word can't be empty!");
+    return res.redirect("/secretWord");
+  }
+
+  if (word.startsWith("P")) {
     req.flash("error", "That word won't work!");
     req.flash("error", "You can't use words that starts with 'P'!");
   } else {
     req.session.secretWord = req.body.secretWord;
     req.flash("info", "Secret word was changed.");
   }
-  res.redirect("/secretWord");
+  return res.redirect("/secretWord");
 });
 
 module.exports = router;

@@ -1,7 +1,6 @@
 const express = require("express");
 
 const app = express();
-console.log("RUNNING APP.JS VERSION: whoami route added");
 
 require("dotenv").config(); // to load the .env file into the process.env object
 
