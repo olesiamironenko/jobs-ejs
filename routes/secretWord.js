@@ -1,14 +1,18 @@
 const express = require("express");
 const router = express.Router();
 
+const csrf = require("host-csrf");
+const csrfMiddleware = csrf.csrf();
+
 router.get("/", (req, res) => {
+  csrf.refreshToken(req, res);
   if (!req.session.secretWord) {
     req.session.secretWord = "syzygy";
   }
   res.render("secretWord", { secretWord: req.session.secretWord });
 });
 
-router.post("/", (req, res) => {
+router.post("/", csrfMiddleware, (req, res) => {
   const word = (req.body.secretWord || "").toUpperCase();
 
   if (!word) {

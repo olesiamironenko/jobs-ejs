@@ -1,0 +1,54 @@
+<%- include("partials/head") %>
+<%- include("partials/header") %>
+
+<% const isEdit = !!job; %>
+
+<h2><%= isEdit ? "Edit job" : "Add a new job" %></h2>
+
+<form method="POST" action="<%= isEdit ? `/jobs/update/${job._id}` : '/jobs' %>">
+  <input type="hidden" name="_csrf" value="<%= _csrf %>">
+
+  <div>
+    <label for="companyName">Company:</label>
+    <input 
+      type="text" 
+      id="companyName" 
+      name="companyName" 
+      value="<%= isEdit && job.companyName ? job.companyName : '' %>" 
+      required
+    >
+  </div>
+
+  <div>
+    <label for="positionName">Position:</label>
+    <input 
+      type="text" 
+      id="positionName" 
+      name="positionName" 
+      value="<%= isEdit && job.positionName ? job.positionName : '' %>" 
+      required
+    >
+  </div>
+
+  <div>
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <% const current = isEdit && job.status ? job.status : 'Pending'; %>
+      <option value="pending" <%= current === "pending" ? "selected" : "" %>>Pending</option>
+      <option value="applied" <%= current === "applied" ? "selected" : "" %>>Applied</option>
+      <option value="interview" <%= current === "interview" ? "selected" : "" %>>Interview</option>
+      <option value="offered" <%= current === "offered" ? "selected" : "" %>>Offered</option>
+      <option value="declined" <%= current === "declined" ? "selected" : "" %>>Declined</option>
+    </select>
+  </div>
+
+  <div>
+    <button type="submit"><%= isEdit ? "Update" : "Create" %></button>
+    <a href="/jobs">
+      <button type="button">Cancel</button>
+    </a>
+  </div>
+</form>
+
+<%- include("partials/footer") %>
+  

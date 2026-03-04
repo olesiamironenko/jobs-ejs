@@ -1,6 +1,11 @@
 const express = require("express");
-
 const app = express();
+
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+
+const cookieParser = require("cookie-parser");
 
 require("dotenv").config(); // to load the .env file into the process.env object
 
@@ -10,6 +15,12 @@ const url = process.env.MONGO_URI;
 
 const passport = require("passport");
 const passportInit = require("./passport/passportInit");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
 
 app.set("view engine", "ejs");
 app.use(require("body-parser").urlencoded({ extended: true }));
@@ -38,6 +49,14 @@ if (app.get("env") === "production") {
 
 app.use(session(sessionParams));
 
+app.use(cookieParser(process.env.SESSION_SECRET));
+
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
+app.use(xss());
+app.use(limiter);
+
 app.use(require("connect-flash")());
 
 passportInit(passport);
@@ -45,15 +64,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(require("./middleware/storeLocals"));
+
+const csrf = require("host-csrf");
+
 app.get("/", (req, res) => {
+  csrf.refreshToken(req, res);
   res.render("index");
 });
 
 app.use("/sessions", require("./routes/sessionRoutes"));
 
+// job handling
+const jobsRouter = require("./routes/jobs");
+const auth = require("./middleware/auth");
+app.use("/jobs", auth, jobsRouter);
+
 // secret word handling
 const secretWordRouter = require("./routes/secretWord");
-const auth = require("./middleware/auth");
 app.use("/secretWord", auth, secretWordRouter);
 
 app.use((req, res) => {
