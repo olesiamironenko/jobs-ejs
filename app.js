@@ -1,6 +1,9 @@
 const express = require("express");
-
 const app = express();
+
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
 
 const cookieParser = require("cookie-parser");
 
@@ -12,6 +15,12 @@ const url = process.env.MONGO_URI;
 
 const passport = require("passport");
 const passportInit = require("./passport/passportInit");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
 
 app.set("view engine", "ejs");
 app.use(require("body-parser").urlencoded({ extended: true }));
@@ -42,6 +51,11 @@ app.use(session(sessionParams));
 
 app.use(cookieParser(process.env.SESSION_SECRET));
 
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
+app.use(xss());
+app.use(limiter);
 
 app.use(require("connect-flash")());
 
