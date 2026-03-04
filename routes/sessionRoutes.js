@@ -1,5 +1,7 @@
 const express = require("express");
 const passport = require("passport");
+const csrf = require("host-csrf");
+
 const router = express.Router();
 
 const { 
@@ -9,17 +11,20 @@ const {
   logoff,
 } = require("../controllers/sessionController");
 
-router.route("/register").get(registerShow).post(registerDo);
+const csrfMiddleware = csrf.csrf();
+
+router.route("/register").get(registerShow).post(csrfMiddleware, registerDo);
 router
   .route("/logon")
   .get(logonShow)
   .post(
+    csrfMiddleware,
     passport.authenticate("local", {
       successRedirect: "/",
       failureRedirect: "/sessions/logon",
       failureFlash: true,
     })
   );
-router.route("/logoff").post(logoff);
+router.route("/logoff").post(csrfMiddleware, logoff);
 
 module.exports = router;

@@ -2,6 +2,8 @@ const express = require("express");
 
 const app = express();
 
+const cookieParser = require("cookie-parser");
+
 require("dotenv").config(); // to load the .env file into the process.env object
 
 const session = require("express-session");
@@ -38,6 +40,9 @@ if (app.get("env") === "production") {
 
 app.use(session(sessionParams));
 
+app.use(cookieParser(process.env.SESSION_SECRET));
+
+
 app.use(require("connect-flash")());
 
 passportInit(passport);
@@ -45,15 +50,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(require("./middleware/storeLocals"));
+
+const csrf = require("host-csrf");
+
 app.get("/", (req, res) => {
+  csrf.refreshToken(req, res);
   res.render("index");
 });
 
 app.use("/sessions", require("./routes/sessionRoutes"));
 
+// job handling
+const jobsRouter = require("./routes/jobs");
+const auth = require("./middleware/auth");
+app.use("/jobs", auth, jobsRouter);
+
 // secret word handling
 const secretWordRouter = require("./routes/secretWord");
-const auth = require("./middleware/auth");
 app.use("/secretWord", auth, secretWordRouter);
 
 app.use((req, res) => {
