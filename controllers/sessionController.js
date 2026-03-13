@@ -1,13 +1,16 @@
 const User = require("../models/User");
 const parsVErr = require("../utils/parseValidationErrs");
+const csrf = require("host-csrf");
 
 const registerShow = (req, res) => {
+  csrf.refreshToken(req, res); 
   res.render("register");
 };
 
 const registerDo = async (req, res, next) => {
   if (req.body.password !== req.body.password1) {
     req.flash("error", "The passwords entered do not match!");
+    csrf.refreshToken(req, res);
     return res.render("register", { errors: req.flash("error") });
   }
   try {
@@ -20,6 +23,7 @@ const registerDo = async (req, res, next) => {
     } else {
       return next(e);
     }
+    csrf.refreshToken(req, res);
     return res.render("register", { errors: req.flash("error") }); 
   }
   req.flash("info", "Registration successful. You can now log in.");
@@ -39,6 +43,7 @@ const logonShow = (req, res) => {
   if (req.user) {
     return res.redirect("/");
   }
+  csrf.refreshToken(req, res);
   res.render("logon");
 }
 
